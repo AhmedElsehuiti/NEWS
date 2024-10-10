@@ -7,12 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.news.R
 import com.example.news.api.ApiManager
+import com.example.news.databinding.FragmentNewsBinding
 import com.example.news.home.Constants
 import com.example.news.home.NewsAdapter
+import com.example.news.model.ArticlesItem
 import com.example.news.model.Category
 import com.example.news.model.SourcedResponse
 import com.example.news.model.SourcesItem
@@ -30,66 +36,70 @@ class NewsFragment : Fragment() {
             return  fragment
         }
     }
+    lateinit var viewDataBinding:FragmentNewsBinding
     lateinit var category:Category
+    lateinit var viewModel: NewsViewModel
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    private lateinit var tabLayout: TabLayout
-    lateinit var progressBar: ProgressBar
-    private lateinit var recyclerView: RecyclerView
+        viewModel = ViewModelProvider(this)[NewsViewModel::class.java]
+    }
+
+     fun subscribeToLiveData() {
+         viewModel.sourceLiveData.observe(viewLifecycleOwner
+         ) {
+             addSourcesToTabLayout(it)
+         }
+         viewModel.newsLiveData.observe(viewLifecycleOwner){
+             showNews(it)
+         }
+         viewModel.progressVisible.observe(viewLifecycleOwner ){isVisible->
+             viewDataBinding.progress.isVisible = isVisible
+         }
+         viewModel.messageLiveData.observe(viewLifecycleOwner){message->
+             Toast.makeText(activity,message ,Toast.LENGTH_LONG).show()
+         }
+
+     }
+
+    private fun showNews(newsList: List<ArticlesItem?>?) {
+        adapter.changeData(newsList)
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_news, container, false)
+       viewDataBinding =  DataBindingUtil.inflate(inflater,R.layout.fragment_news, container, false)
+        return viewDataBinding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
-        getNewsSources()
+        subscribeToLiveData()
+        viewModel.getNewsSources(category)
     }
     private val adapter = NewsAdapter(null)
     private fun initViews(){
-        tabLayout =requireView().findViewById(R.id.tab_layout)
-        progressBar = requireView().findViewById(R.id.progress)
-        recyclerView = requireView().findViewById(R.id.recyclerView)
-        recyclerView.adapter=adapter
+        viewDataBinding.recyclerView.adapter = adapter
     }
-    private fun getNewsSources(){
-        ApiManager.getApis()
-            .getSources(Constants.apiKey,category.id)
-            .enqueue(object : Callback<SourcedResponse> {
-                override fun onFailure(call: Call<SourcedResponse>,
-                                       t: Throwable) {
-                    t.localizedMessage?.let { Log.e("error", it) }
 
-
-                }
-
-                override fun onResponse(
-                    call: Call<SourcedResponse>,
-                    response: Response<SourcedResponse>
-                ) {
-                    progressBar.isVisible = false
-                    addSourcesToTabLayout(response.body()?.sources)
-                }
-
-            })
-
-
-    }
     fun addSourcesToTabLayout(sources: List<SourcesItem?>?){
         sources?.forEach {sources->
-            val tab = tabLayout.newTab()
+            val tab = viewDataBinding.tabLayout.newTab()
             tab.tag=sources
             tab.text = sources?.name
-            tabLayout.addTab(tab)
+            viewDataBinding.tabLayout.addTab(tab)
         }
-        tabLayout.addOnTabSelectedListener(
+        viewDataBinding.tabLayout.addOnTabSelectedListener(
             object : TabLayout.OnTabSelectedListener{
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     val source= tab?.tag as SourcesItem
-                    getNewsBySource(source)
+                    viewModel.getNewsBySource(source)
 
                 }
 
@@ -99,37 +109,12 @@ class NewsFragment : Fragment() {
 
                 override fun onTabReselected(tab: TabLayout.Tab?) {
                     val source= tab?.tag as SourcesItem
-                    getNewsBySource(source)
+                  viewModel.getNewsBySource(source)
                 }
 
             }
         )
-        tabLayout.getTabAt(0)?.select()
-    }
-    fun getNewsBySource(source: SourcesItem){
-        progressBar.isVisible = true
-        ApiManager.getApis()
-            .getNews(Constants.apiKey,source.id?:"")
-            .enqueue(object : Callback<com.example.news.model.Response> {
-                override fun onResponse(
-                    call: Call<com.example.news.model.Response>,
-                    response: Response<com.example.news.model.Response>
-                ) {
-                    progressBar.isVisible=false
-                    adapter.changeData(response.body()?.articles)
-
-
-                }
-
-                override fun onFailure(call: Call<com.example.news.model.Response>, t: Throwable) {
-                    progressBar.isVisible=false
-
-
-                }
-
-            })
-
-
+        viewDataBinding.tabLayout.getTabAt(0)?.select()
     }
 
 

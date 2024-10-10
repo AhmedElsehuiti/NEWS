@@ -5,9 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.news.R
+import com.example.news.databinding.ItemNewsBinding
 import com.example.news.model.ArticlesItem
 import org.w3c.dom.Text
 
@@ -17,16 +19,17 @@ class  NewsAdapter(var items:List<ArticlesItem?>?) : RecyclerView.Adapter<NewsAd
         notifyDataSetChanged()
 
     }
-    class ViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
-        val title:TextView = itemView.findViewById(R.id.title_item)
-        val author:TextView = itemView.findViewById(R.id.author)
-        val data:TextView = itemView.findViewById(R.id.data)
-        val image:ImageView = itemView.findViewById(R.id.image)
+    class ViewHolder(val itemNewsBinding: ItemNewsBinding):RecyclerView.ViewHolder(itemNewsBinding.root){
+        fun bind(item: ArticlesItem?){
+            itemNewsBinding.item = item
+            itemNewsBinding.invalidateAll()
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =LayoutInflater.from(parent.context).inflate(R.layout.item_news,parent,false)
-        return ViewHolder(view)
+       val viewBinding :ItemNewsBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context),R.layout.item_news,parent,false)
+        return ViewHolder(viewBinding)
     }
 
     override fun getItemCount(): Int {
@@ -35,12 +38,9 @@ class  NewsAdapter(var items:List<ArticlesItem?>?) : RecyclerView.Adapter<NewsAd
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item =items?.get(position)
-        holder.title.text = item?.title
-        holder.author.text = item?.author
-        holder.data.text = item?.publishedAt
-        Glide.with(holder.itemView)
-            .load(item?.urlToImage)
-            .into(holder.image)
+       holder.itemNewsBinding.item = item
+        holder.itemNewsBinding.executePendingBindings()
+        holder.bind(item)
 
 
     }

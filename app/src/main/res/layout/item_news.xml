@@ -1,56 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="10dp">
-    <ProgressBar
-        style="@android:style/Widget.ProgressBar.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@id/image"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/image" />
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/image"
+    <data>
+        <variable
+            name="item"
+            type="com.example.news.model.ArticlesItem" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintTop_toTopOf="parent"
-        app:riv_corner_radius="16sp"
-        tools:layout_editor_absoluteX="10dp"
-        tools:src="@drawable/ahmed" />
-
-    <TextView
-        android:id="@+id/author"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/grey"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image"
-        tools:text="ahmed" />
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/title_item"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="#42505C"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/author"
-        tools:text="Why are football's biggest clubs starting a new
-        tournament?" />
-    <TextView
-        android:id="@+id/data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/grey"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_item"
-        tools:text="3 hours ago" />
+        <ProgressBar
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/image" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerCrop"
+            imageUrl="@{item.urlToImage}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:riv_corner_radius="16sp"
+            tools:layout_editor_absoluteX="10dp"
+            tools:src="@drawable/ahmed" />
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/image"
+            tools:text="@{item.author}" />
+
+        <TextView
+            android:id="@+id/title_item"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#42505C"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/author"
+            tools:text="@{item.title}" />
+
+        <TextView
+            android:id="@+id/data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_item"
+            tools:text="@{item.publishedAt}" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

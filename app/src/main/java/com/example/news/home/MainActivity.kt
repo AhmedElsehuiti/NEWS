@@ -24,8 +24,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
             initViews()
         getNewsSources()
-
-
     }
     private val adapter = NewsAdapter(null)
     private fun initViews(){
@@ -110,8 +108,4 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
-
-
 }
